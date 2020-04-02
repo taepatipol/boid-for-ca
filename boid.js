@@ -6,7 +6,7 @@
 
 class Boid {
   constructor(id) {
-    this.position = createVector(random(width), random(height));
+    this.position = createVector(random(width-360)+180, random(height-360)+180);
     this.velocity = p5.Vector.random2D();
     this.velocity.setMag(random(2, 4));
     this.acceleration = createVector();
@@ -29,7 +29,7 @@ class Boid {
   }
 
   align(boids) {
-    let perceptionRadius = 50;
+    let perceptionRadius = 100;
     let steering = createVector();
     let total = 0;
     for (let other of boids) {
@@ -126,18 +126,88 @@ class Boid {
     return steering;
   }
 
-  flock(boids) {
-    let alignment = this.align(boids);
-    let cohesion = this.cohesion(boids);
-    let separation = this.separation(boids);
+  avoid(obs) {
+    let perceptionRadius = 20;
+    let steering = createVector();
+    let total = 0;
+    for (let ob of obs) {
+      let d = dist(
+        this.position.x,
+        this.position.y,
+        ob.position.x,
+        ob.position.y
+      );
+      if (d < perceptionRadius) {
+        let diff = p5.Vector.sub(this.position, ob.position);
+        diff.div(d * d);
+        steering.add(diff);
+        total++;
+      }
+    }
+    if (total > 0) {
+      steering.div(total);
+      steering.setMag(this.maxSpeed);
+      steering.sub(this.velocity);
+      steering.limit(this.maxForce+2);
+    }
+    return steering;
+  }
 
-    alignment.mult(alignSlider.value());
-    cohesion.mult(cohesionSlider.value());
-    separation.mult(separationSlider.value());
+  follow(boids) {
+    if (this.id < 4) return;
+    let perceptionRadius = 200;
+    let steering = createVector();
+    let total = 0;
+    for (let other of boids) {
+      if (other.id >= 4) continue;
+      let d = dist(
+        this.position.x,
+        this.position.y,
+        other.position.x,
+        other.position.y
+      );
+      if (d < perceptionRadius) {
+        steering.add(other.velocity);
+        total++;
+      }
+    }
+    if (total > 0) {
+      //steering.div(total);
+      steering.sub(this.position);
+      steering.setMag(this.maxSpeed);
+      steering.sub(this.velocity);
+      steering.limit(this.maxForce);
+    }
+    return steering;
+  }
 
-    this.acceleration.add(alignment);
-    this.acceleration.add(cohesion);
-    this.acceleration.add(separation);
+  flock(boids,obs,doorPos) {
+    if (this.id < 4) {
+      if (this.outOfRoom()) {
+        //do nothing
+      } else {
+        let doorDirect = p5.Vector.sub(this.position, doorPos);
+        this.acceleration.sub(doorDirect);
+      }
+    } else if (this.outOfRoom()) {
+      //do nothing
+    } else {
+      let alignment = this.align(boids);
+      let cohesion = this.cohesion(boids);
+      let separation = this.separation(boids);
+      let obsAvoid = this.avoid(obs);
+      let followLead = this.follow(boids);
+
+      alignment.mult(alignSlider.value());
+      cohesion.mult(cohesionSlider.value());
+      separation.mult(separationSlider.value());
+
+      this.acceleration.add(alignment);
+      this.acceleration.add(cohesion);
+      this.acceleration.add(separation);
+      this.acceleration.add(obsAvoid);
+      this.acceleration.add(followLead);
+    }
   }
 
   update() {
@@ -149,9 +219,18 @@ class Boid {
 
   show() {
     strokeWeight(8);
-    if (this.id == 1) { stroke('red'); }
+    if (this.id < 4) { stroke('red'); }
     else stroke(255);
     point(this.position.x, this.position.y);
+  }
+
+  outOfRoom() {
+    if (this.position.x < width-150 && this.position.x > 150) {
+      if (this.position.y < height-150 && this.position.y > 150) {
+        return false;
+      }
+    }
+    return true;
   }
 }
 
