@@ -160,6 +160,7 @@ class Boid {
     let total = 0;
     for (let other of boids) {
       if (other.id >= 4) continue;
+      if (total >= 1) continue;
       let d = dist(
         this.position.x,
         this.position.y,
@@ -173,10 +174,11 @@ class Boid {
     }
     if (total > 0) {
       //steering.div(total);
+      steering.mult(20);
       steering.sub(this.position);
       steering.setMag(this.maxSpeed);
       steering.sub(this.velocity);
-      steering.limit(this.maxForce*2);
+      steering.limit(this.maxForce*20);
     }
     return steering;
   }
