@@ -7,6 +7,7 @@
 // https://editor.p5js.org/codingtrain/sketches/ry4XZ8OkN
 
 const flock = [];
+const obs = [];
 
 let alignSlider, cohesionSlider, separationSlider;
 
@@ -18,6 +19,19 @@ function setup() {
   for (let i = 0; i < 200; i++) {
     flock.push(new Boid(i));
   }
+
+  for(let x = 150; x <= width-150; x++) {
+    obs.push(new Obstracle(x,150));
+  }
+  for(let x = 150; x <= width-150; x++) {
+    obs.push(new Obstracle(x,height-150));
+  }
+  for(let y = 150; y <= height-150; y++) {
+    obs.push(new Obstracle(150,y));
+  }
+  for(let y = 150; y <= height-150; y++) {
+    obs.push(new Obstracle(width-150,y));
+  }
 }
 
 function draw() {
@@ -27,5 +41,9 @@ function draw() {
     boid.flock(flock);
     boid.update();
     boid.show();
+  }
+
+  for (let ob of obs) {
+    ob.show();
   }
 }

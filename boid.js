@@ -149,7 +149,20 @@ class Boid {
 
   show() {
     strokeWeight(8);
-    stroke(255);
+    if (this.id == 1) { stroke('red'); }
+    else stroke(255);
     point(this.position.x, this.position.y);
+  }
+}
+
+class Obstracle {
+  constructor(x,y) {
+    this.position = createVector(x,y);
+  }
+
+  show() {
+    strokeWeight(8);
+    stroke('green');
+    point(this.position.x, this.position.y)
   }
 }
