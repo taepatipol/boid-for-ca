@@ -8,7 +8,7 @@
 
 const flock = [];
 const obs = [];
-const OPTION = 5; // 1: north 2: west 3: north south 4: west east 5: corner
+const OPTION = 5; // change door position here!! 1: north 2: west 3: north south 4: west east 5: corner
 const NUM = 200;
 let time = 0;
 let everyoneOut = false;
