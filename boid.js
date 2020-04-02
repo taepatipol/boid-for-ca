@@ -101,7 +101,7 @@ class Boid {
   }
 
   cohesion(boids) {
-    let perceptionRadius = 100;
+    let perceptionRadius = 150;
     let steering = createVector();
     let total = 0;
     for (let other of boids) {
@@ -176,17 +176,28 @@ class Boid {
       steering.sub(this.position);
       steering.setMag(this.maxSpeed);
       steering.sub(this.velocity);
-      steering.limit(this.maxForce);
+      steering.limit(this.maxForce*2);
     }
     return steering;
   }
 
-  flock(boids,obs,doorPos) {
+  flock(boids,obs,doorPosList) {
     if (this.id < 4) {
       if (this.outOfRoom()) {
         //do nothing
       } else {
-        let doorDirect = p5.Vector.sub(this.position, doorPos);
+        let doorDirect;
+        if (doorPosList.length == 1) {
+          doorDirect = p5.Vector.sub(this.position, doorPosList[0]);
+        } else if (doorPosList.length == 2) {
+          if (this.id < 2) doorDirect = p5.Vector.sub(this.position, doorPosList[0]);
+          else doorDirect = p5.Vector.sub(this.position, doorPosList[1]);
+        } else if (doorPosList.length == 4) {
+          if (this.id == 0) doorDirect = p5.Vector.sub(this.position, doorPosList[0]);
+          else if (this.id == 1) doorDirect = p5.Vector.sub(this.position, doorPosList[1]);
+          else if (this.id == 2) doorDirect = p5.Vector.sub(this.position, doorPosList[2]);
+          else if (this.id == 3) doorDirect = p5.Vector.sub(this.position, doorPosList[3]);
+        }
         this.acceleration.sub(doorDirect);
       }
     } else if (this.outOfRoom()) {
