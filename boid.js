@@ -13,6 +13,7 @@ class Boid {
     this.maxForce = 1;
     this.maxSpeed = 4;
     this.id = id;
+    this.life = 255;
   }
 
   edges() {
@@ -228,13 +229,14 @@ class Boid {
     this.velocity.add(this.acceleration);
     this.velocity.limit(this.maxSpeed);
     this.acceleration.mult(0);
+    this.life -= 2;
   }
 
   show() {
-    strokeWeight(8);
-    if (this.id < 4) { stroke('red'); }
-    else stroke(255);
-    point(this.position.x, this.position.y);
+    noStroke();
+    if (this.id < 4) { fill('red'); }
+    else fill('white');
+    ellipse(this.position.x, this.position.y, 5);
   }
 
   outOfRoom() {
@@ -244,6 +246,10 @@ class Boid {
       }
     }
     return true;
+  }
+
+  died() {
+    return this.life <= 0;
   }
 }
 

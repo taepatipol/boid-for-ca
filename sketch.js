@@ -8,10 +8,11 @@
 
 const flock = [];
 const obs = [];
-const OPTION = 4; // change door position here!! 1: north 2: west 3: north south 4: west east 5: corner
-const NUM = 200;
+const OPTION = 5; // change door position here!! 1: north 2: west 3: north south 4: west east 5: corner
+const NUM = 20;
 let time = 0;
 let everyoneOut = false;
+let id = 0;
 
 let alignSlider, cohesionSlider, separationSlider;
 
@@ -21,7 +22,8 @@ function setup() {
   cohesionSlider = createSlider(0, 2, 1, 0.1);
   separationSlider = createSlider(0, 2, 1, 0.1);
   for (let i = 0; i < NUM; i++) {
-    flock.push(new Boid(i));
+    flock.push(new Boid(id));
+    id++;
   }
 
   for(let x = 150; x <= width-150; x++) {
@@ -48,7 +50,13 @@ function setup() {
 
 function draw() {
   background(51);
-  for (let boid of flock) {
+
+  flock.push(new Boid(id));
+  id++;
+
+  for (let i = 0; i <= flock.length - 1; i++) {
+    boid = flock[i];
+    console.log(boid);
     boid.edges();
     let doorPosList = [];
 
@@ -74,6 +82,7 @@ function draw() {
     boid.flock(flock,obs,doorPosList);
     boid.update();
     boid.show();
+    if (boid.died()) flock.splice(i,1);
   }
 
   for (let ob of obs) {
